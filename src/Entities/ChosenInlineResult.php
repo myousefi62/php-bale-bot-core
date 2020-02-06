@@ -1,53 +1,37 @@
 <?php
 
-/*
+/**
  * This file is part of the TelegramBot package.
  *
  * (c) Avtandil Kikabidze aka LONGMAN <akalongman@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
-*/
+ */
+
 namespace Longman\TelegramBot\Entities;
 
-use Longman\TelegramBot\Exception\TelegramException;
-
+/**
+ * Class ChosenInlineResult
+ *
+ * @link https://core.telegram.org/bots/api#choseninlineresult
+ *
+ * @method string   getResultId()        The unique identifier for the result that was chosen
+ * @method User     getFrom()            The user that chose the result
+ * @method Location getLocation()        Optional. Sender location, only for bots that require user location
+ * @method string   getInlineMessageId() Optional. Identifier of the sent inline message. Available only if there is an inline keyboard attached to the message. Will be also received in callback queries and can be used to edit the message.
+ * @method string   getQuery()           The query that was used to obtain the result
+ */
 class ChosenInlineResult extends Entity
 {
-
-    protected $result_id;
-    protected $from;
-    protected $query;
-
-    public function __construct(array $data)
+    /**
+     * {@inheritdoc}
+     */
+    protected function subEntities()
     {
-
-        $this->result_id = isset($data['result_id']) ? $data['result_id'] : null;
-        if (empty($this->result_id)) {
-            throw new TelegramException('result_id is empty!');
-        }
-
-        $this->from = isset($data['from']) ? $data['from'] : null;
-        if (empty($this->from)) {
-            throw new TelegramException('from is empty!');
-        }
-        $this->from = new User($this->from);
-
-        $this->query = isset($data['query']) ? $data['query'] : null;
-        $this->offset = isset($data['offset']) ? $data['offset'] : null;
-    }
-
-    public function getResultId()
-    {
-        return $this->result_id;
-    }
-
-    public function getFrom()
-    {
-        return $this->from;
-    }
-    public function getQuery()
-    {
-        return $this->query;
+        return [
+            'from'     => User::class,
+            'location' => Location::class,
+        ];
     }
 }

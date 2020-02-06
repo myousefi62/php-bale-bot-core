@@ -1,58 +1,56 @@
 <?php
 
-/*
+/**
  * This file is part of the TelegramBot package.
  *
  * (c) Avtandil Kikabidze aka LONGMAN <akalongman@gmail.com>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
-*/
+ */
+
 namespace Longman\TelegramBot\Entities;
 
-use Longman\TelegramBot\Exception\TelegramException;
+use Longman\TelegramBot\Entities\InlineQuery\InlineQueryResult;
+use Longman\TelegramBot\Request;
 
+/**
+ * Class InlineQuery
+ *
+ * @link https://core.telegram.org/bots/api#inlinequery
+ *
+ * @method string   getId()       Unique identifier for this query
+ * @method User     getFrom()     Sender
+ * @method Location getLocation() Optional. Sender location, only for bots that request user location
+ * @method string   getQuery()    Text of the query (up to 512 characters)
+ * @method string   getOffset()   Offset of the results to be returned, can be controlled by the bot
+ */
 class InlineQuery extends Entity
 {
-
-    protected $id;
-    protected $from;
-    protected $query;
-    protected $offset;
-
-    public function __construct(array $data)
+    /**
+     * {@inheritdoc}
+     */
+    protected function subEntities()
     {
-
-        $this->id = isset($data['id']) ? $data['id'] : null;
-        if (empty($this->id)) {
-            throw new TelegramException('id is empty!');
-        }
-
-        $this->from = isset($data['from']) ? $data['from'] : null;
-        if (empty($this->from)) {
-            throw new TelegramException('from is empty!');
-        }
-        $this->from = new User($this->from);
-
-        $this->query = isset($data['query']) ? $data['query'] : null;
-        $this->offset = isset($data['offset']) ? $data['offset'] : null;
+        return [
+            'from'     => User::class,
+            'location' => Location::class,
+        ];
     }
 
-    public function getId()
+    /**
+     * Answer this inline query with the passed results.
+     *
+     * @param InlineQueryResult[] $results
+     * @param array               $data
+     *
+     * @return ServerResponse
+     */
+    public function answer(array $results, array $data = [])
     {
-        return $this->id;
-    }
-
-    public function getFrom()
-    {
-        return $this->from;
-    }
-    public function getQuery()
-    {
-        return $this->query;
-    }
-    public function getOffset()
-    {
-        return $this->offset;
+        return Request::answerInlineQuery(array_merge([
+            'inline_query_id' => $this->getId(),
+            'results'         => $results,
+        ], $data));
     }
 }
